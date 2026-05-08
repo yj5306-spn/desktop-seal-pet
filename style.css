@@ -1,0 +1,46 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 200px;
+  height: 200px;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+#container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-app-region: drag;
+}
+
+#seal {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  cursor: grab;
+  -webkit-app-region: drag;
+  transition: transform 0.15s ease;
+}
+
+#seal:active {
+  cursor: grabbing;
+}
+
+@keyframes breathe {
+  0%   { transform: translateX(var(--tx, 0px)) scale(1); }
+  50%  { transform: translateX(var(--tx, 0px)) scale(1.05); }
+  100% { transform: translateX(var(--tx, 0px)) scale(1); }
+}
+
+#seal.breathing {
+  animation: breathe 2s ease-in-out;
+}
