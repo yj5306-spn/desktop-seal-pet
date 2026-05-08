@@ -24,12 +24,8 @@
       "seal.png"
     ],
     "win": {
-      "target": "nsis",
+      "target": "portable",
       "icon": "seal.png"
-    },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": false
     }
   }
 }
