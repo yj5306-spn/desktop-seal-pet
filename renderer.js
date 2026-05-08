@@ -1,12 +1,12 @@
 const { ipcRenderer } = require('electron');
 
-const seal = document.getElementById('seal');
-
-const IMG = {
-  open:  'seal_eyes_open.png',
-  sleep: 'seal.png',
-  side:  'seal_looking_side.png',
+// --- 레이어 요소 ---
+const layers = {
+  idle:    document.getElementById('img-idle'),
+  blink:   document.getElementById('img-blink'),
+  looking: document.getElementById('img-looking'),
 };
+const container = document.getElementById('container');
 
 // 현재 상태: 'idle' | 'blinking' | 'looking' | 'clicked' | 'sleeping'
 let state = 'idle';
@@ -15,18 +15,14 @@ function log(s) {
   console.log(`[seal] state: ${s}`);
 }
 
-// --- 이미지 전환 (opacity fade) ---
-function setImage(src) {
-  if (seal.src.endsWith(src)) return;
-  seal.style.opacity = '0';
-  setTimeout(() => {
-    seal.src = src;
-    seal.style.opacity = '1';
-  }, 75);
+// --- 레이어 전환 (active 클래스 토글) ---
+function showLayer(name) {
+  Object.values(layers).forEach((el) => el.classList.remove('active'));
+  if (layers[name]) layers[name].classList.add('active');
 }
 
-// --- 호흡 애니메이션 시작 ---
-seal.classList.add('breathing');
+// --- 호흡 애니메이션: idle 레이어에만 적용 ---
+layers.idle.classList.add('breathing');
 
 // --- 우클릭 컨텍스트 메뉴 ---
 window.addEventListener('contextmenu', (e) => {
@@ -41,7 +37,9 @@ let targetTx  = 5;
 function nudgeHorizontal() {
   currentTx = targetTx;
   targetTx  = targetTx === 5 ? -5 : 5;
-  seal.style.setProperty('--tx', `${currentTx}px`);
+  Object.values(layers).forEach((el) =>
+    el.style.setProperty('--tx', `${currentTx}px`)
+  );
 }
 
 setTimeout(() => {
@@ -49,12 +47,12 @@ setTimeout(() => {
   setInterval(nudgeHorizontal, 10000);
 }, 10000);
 
-// --- 깜빡임 ---
+// --- 깜빡임 (5~10초마다 0.12초) ---
 let blinkTimer = null;
 
 function scheduleNextBlink() {
   clearTimeout(blinkTimer);
-  const delay = 5000 + Math.random() * 5000; // 5~10초 랜덤 간격
+  const delay = 5000 + Math.random() * 5000;
   blinkTimer = setTimeout(() => {
     if (state !== 'idle') {
       scheduleNextBlink();
@@ -62,22 +60,20 @@ function scheduleNextBlink() {
     }
     state = 'blinking';
     log('blinking');
-    setImage(IMG.sleep);
+    showLayer('blink');
 
-    // 눈 감은 상태는 0.12초만 유지
     setTimeout(() => {
       if (state === 'blinking') {
         state = 'idle';
         log('idle');
-        setImage(IMG.open);
+        showLayer('idle');
         scheduleNextBlink();
       }
     }, 120);
   }, delay);
 }
 
-// 초기화
-setImage(IMG.open);
+showLayer('idle');
 log('idle');
 scheduleNextBlink();
 
@@ -90,7 +86,7 @@ function resetIdle() {
   if (state === 'sleeping') {
     state = 'idle';
     log('idle');
-    setImage(IMG.open);
+    showLayer('idle');
     scheduleNextBlink();
   }
   idleTimer = setTimeout(() => {
@@ -98,7 +94,7 @@ function resetIdle() {
       clearTimeout(blinkTimer);
       state = 'sleeping';
       log('sleeping');
-      setImage(IMG.sleep);
+      showLayer('blink'); // 눈 감은 레이어 = blink
     }
   }, IDLE_TIMEOUT);
 }
@@ -108,45 +104,46 @@ window.addEventListener('keydown',   resetIdle);
 resetIdle();
 
 // --- 마우스 호버 ---
-seal.addEventListener('mouseenter', () => {
+container.addEventListener('mouseenter', () => {
   if (state === 'sleeping' || state === 'clicked') return;
-  clearTimeout(blinkTimer); // 호버 중 깜빡임 일시 중지
+  clearTimeout(blinkTimer);
   state = 'looking';
   log('looking');
-  setImage(IMG.side);
+  showLayer('looking');
 });
 
-seal.addEventListener('mouseleave', () => {
+container.addEventListener('mouseleave', () => {
   if (state === 'looking') {
     state = 'idle';
     log('idle');
-    setImage(IMG.open);
-    scheduleNextBlink(); // 호버 해제 후 깜빡임 재개
+    showLayer('idle');
+    scheduleNextBlink();
   }
 });
 
 // --- 클릭 반응 (놀람 + 점프) ---
-seal.addEventListener('click', () => {
+container.addEventListener('click', () => {
   if (state === 'sleeping') return;
   clearTimeout(blinkTimer);
   state = 'clicked';
   log('clicked');
-  setImage(IMG.open);
+  showLayer('idle');
 
-  seal.classList.remove('breathing', 'jumping');
-  void seal.offsetWidth; // reflow
-  seal.classList.add('jumping');
+  const activeLayer = layers.idle;
+  activeLayer.classList.remove('breathing', 'jumping');
+  void activeLayer.offsetWidth; // reflow
+  activeLayer.classList.add('jumping');
 
-  seal.addEventListener('animationend', () => {
-    seal.classList.remove('jumping');
-    seal.classList.add('breathing');
+  activeLayer.addEventListener('animationend', () => {
+    activeLayer.classList.remove('jumping');
+    activeLayer.classList.add('breathing');
   }, { once: true });
 
   setTimeout(() => {
     if (state === 'clicked') {
       state = 'idle';
       log('idle');
-      setImage(IMG.open);
+      showLayer('idle');
       scheduleNextBlink();
     }
   }, 1000);
