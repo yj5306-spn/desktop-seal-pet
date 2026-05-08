@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, Menu, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 
 let win;
@@ -30,13 +30,6 @@ app.on('window-all-closed', () => {
   app.quit();
 });
 
-// IPC 기반 커스텀 드래그
-ipcMain.on('drag-window', (event, { mouseX, mouseY }) => {
-  const cursor = screen.getCursorScreenPoint();
-  win.setPosition(cursor.x - mouseX, cursor.y - mouseY);
-});
-
-// 우클릭 종료 메뉴
 ipcMain.on('show-context-menu', () => {
   const menu = Menu.buildFromTemplate([
     {
