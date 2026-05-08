@@ -17,6 +17,7 @@
     "productName": "SealWidget",
     "files": [
       "main.js",
+      "preload.js",
       "index.html",
       "renderer.js",
       "style.css",
