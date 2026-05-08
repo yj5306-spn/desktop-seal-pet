@@ -4,7 +4,7 @@ const layers    = document.querySelectorAll('.seal-layer');
 // --- 상태 머신 ---
 const STATES = { IDLE: 'idle', BLINK: 'blink', LOOKING: 'looking', SLEEPING: 'sleeping' };
 
-// sleeping 상태는 시각적으로 blink 레이어(눈 감은 모습)를 사용
+// sleeping은 시각적으로 blink 레이어(눈 감은 모습) 사용
 const STATE_LAYER = {
   [STATES.IDLE]:     'idle',
   [STATES.BLINK]:    'blink',
@@ -22,64 +22,15 @@ function setState(newState) {
   currentState = newState;
 }
 
-// --- 드래그 (IPC 기반, -webkit-app-region 완전 제거) ---
-let isDragging = false;
-let dragStartX = 0;
-let dragStartY = 0;
-let hasMoved   = false;
-
-container.addEventListener('mousedown', (e) => {
-  if (e.button !== 0) return;
-  dragStartX = e.clientX;
-  dragStartY = e.clientY;
-  hasMoved   = false;
-  isDragging = true;
-  e.preventDefault();
-});
-
-document.addEventListener('mousemove', (e) => {
-  lastActivityTime = Date.now();
-  if (currentState === STATES.SLEEPING) setState(STATES.IDLE);
-
-  if (!isDragging) return;
-  const dx = Math.abs(e.clientX - dragStartX);
-  const dy = Math.abs(e.clientY - dragStartY);
-  if (dx > 2 || dy > 2) {
-    hasMoved = true;
-    window.electron.dragWindow({ mouseX: e.clientX, mouseY: e.clientY });
-  }
-});
-
-document.addEventListener('mouseup', (e) => {
-  if (!isDragging || e.button !== 0) return;
-  isDragging = false;
-  if (!hasMoved) handleClick();
-});
-
-// --- 클릭 반응 (놀람 + 점프) ---
-function handleClick() {
-  if (currentState === STATES.SLEEPING) return;
-  setState(STATES.IDLE);
-  container.classList.remove('jumping');
-  void container.offsetWidth; // reflow
-  container.classList.add('jumping');
-  container.addEventListener('animationend', () => {
-    container.classList.remove('jumping');
-  }, { once: true });
-  setTimeout(() => {
-    if (currentState !== STATES.SLEEPING) setState(STATES.IDLE);
-  }, 1000);
-}
-
 // --- 우클릭 종료 메뉴 ---
 window.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   window.electron.showContextMenu();
 });
 
-// --- 호버 ---
+// --- 호버 (mouseenter/mouseleave는 -webkit-app-region: drag와 충돌 없음) ---
 container.addEventListener('mouseenter', () => {
-  if (isDragging || currentState === STATES.SLEEPING) return;
+  if (currentState === STATES.SLEEPING) return;
   setState(STATES.LOOKING);
 });
 
@@ -87,17 +38,17 @@ container.addEventListener('mouseleave', () => {
   if (currentState === STATES.LOOKING) setState(STATES.IDLE);
 });
 
-// --- 깜빡임 (5~10초마다 0.12초) ---
+// --- 깜빡임 (5~10초마다 120ms, idle 상태에서만) ---
 function scheduleBlink() {
   const delay = 5000 + Math.random() * 5000;
   setTimeout(() => {
-    if (currentState === STATES.IDLE && !isDragging) {
+    if (currentState === STATES.IDLE) {
       setState(STATES.BLINK);
       setTimeout(() => {
         if (currentState === STATES.BLINK) setState(STATES.IDLE);
       }, 120);
     }
-    scheduleBlink(); // 항상 다음 깜빡임 예약
+    scheduleBlink();
   }, delay);
 }
 
@@ -106,12 +57,13 @@ scheduleBlink();
 // --- 졸기 모드 (60초 무활동) ---
 let lastActivityTime = Date.now();
 
+document.addEventListener('mousemove', () => {
+  lastActivityTime = Date.now();
+  if (currentState === STATES.SLEEPING) setState(STATES.IDLE);
+});
+
 setInterval(() => {
-  if (
-    Date.now() - lastActivityTime > 60000 &&
-    currentState !== STATES.SLEEPING &&
-    !isDragging
-  ) {
+  if (Date.now() - lastActivityTime > 60000 && currentState !== STATES.SLEEPING) {
     setState(STATES.SLEEPING);
   }
 }, 1000);
