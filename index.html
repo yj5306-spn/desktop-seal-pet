@@ -4,14 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Seal Widget</title>
+  <link rel="preload" as="image" href="seal_eyes_open.png" />
+  <link rel="preload" as="image" href="seal.png" />
+  <link rel="preload" as="image" href="seal_looking_side.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="container">
-    <img id="seal" src="seal_eyes_open.png" alt="seal" draggable="false" />
+    <img id="img-idle"    src="seal_eyes_open.png"    class="seal-layer active" alt="idle"    draggable="false" />
+    <img id="img-blink"   src="seal.png"              class="seal-layer"        alt="blink"   draggable="false" />
+    <img id="img-looking" src="seal_looking_side.png" class="seal-layer"        alt="looking" draggable="false" />
   </div>
-  <img id="preload-sleep"  src="seal.png"             style="display:none" />
-  <img id="preload-side"   src="seal_looking_side.png" style="display:none" />
   <script src="renderer.js"></script>
 </body>
 </html>
