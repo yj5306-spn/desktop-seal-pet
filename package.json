@@ -20,7 +20,9 @@
       "index.html",
       "renderer.js",
       "style.css",
-      "seal.png"
+      "seal.png",
+      "seal_eyes_open.png",
+      "seal_looking_side.png"
     ],
     "win": {
       "target": "portable",
