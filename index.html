@@ -10,10 +10,10 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="container">
-    <img id="img-idle"    src="seal_eyes_open.png"    class="seal-layer active" alt="idle"    draggable="false" />
-    <img id="img-blink"   src="seal.png"              class="seal-layer"        alt="blink"   draggable="false" />
-    <img id="img-looking" src="seal_looking_side.png" class="seal-layer"        alt="looking" draggable="false" />
+  <div id="seal-container">
+    <img class="seal-layer active" data-state="idle"    src="seal_eyes_open.png"    alt="idle"    draggable="false" />
+    <img class="seal-layer"        data-state="blink"   src="seal.png"              alt="blink"   draggable="false" />
+    <img class="seal-layer"        data-state="looking" src="seal_looking_side.png" alt="looking" draggable="false" />
   </div>
   <script src="renderer.js"></script>
 </body>
