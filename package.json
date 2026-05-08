@@ -1,0 +1,35 @@
+{
+  "name": "seal-widget",
+  "version": "1.0.0",
+  "description": "귀여운 물범 데스크톱 위젯",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win"
+  },
+  "dependencies": {
+    "electron": "^28.0.0"
+  },
+  "devDependencies": {
+    "electron-builder": "^24.0.0"
+  },
+  "build": {
+    "appId": "com.seal.widget",
+    "productName": "SealWidget",
+    "files": [
+      "main.js",
+      "index.html",
+      "renderer.js",
+      "style.css",
+      "seal.png"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "seal.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false
+    }
+  }
+}
