@@ -28,7 +28,7 @@ body {
   object-fit: contain;
   cursor: grab;
   -webkit-app-region: drag;
-  transition: opacity 0.08s ease;
+  transition: opacity 0.15s ease;
 }
 
 #seal:active {
@@ -36,13 +36,13 @@ body {
 }
 
 @keyframes breathe {
-  0%,100% { transform: translateX(var(--tx,0px)) translateY(var(--ty,0px)) scale(1); }
-  50%      { transform: translateX(var(--tx,0px)) translateY(var(--ty,0px)) scale(1.04); }
+  0%,100% { transform: translateX(var(--tx,0px)) scale(1); }
+  50%      { transform: translateX(var(--tx,0px)) scale(1.04); }
 }
 
 @keyframes jump {
   0%   { transform: translateX(var(--tx,0px)) translateY(0px) scale(1); }
-  40%  { transform: translateX(var(--tx,0px)) translateY(-5px) scale(1); }
+  40%  { transform: translateX(var(--tx,0px)) translateY(-5px) scale(1.02); }
   100% { transform: translateX(var(--tx,0px)) translateY(0px) scale(1); }
 }
 
