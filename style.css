@@ -14,6 +14,7 @@ body {
 }
 
 #container {
+  position: relative;
   width: 200px;
   height: 200px;
   display: flex;
@@ -22,34 +23,47 @@ body {
   -webkit-app-region: drag;
 }
 
-#seal {
+.seal-layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 160px;
   height: 160px;
+  transform: translate(-50%, -50%);
   object-fit: contain;
-  cursor: grab;
-  -webkit-app-region: drag;
-  transition: opacity 0.15s ease;
+  opacity: 0;
+  transition: opacity 0.08s ease-in-out;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
 }
 
-#seal:active {
+.seal-layer.active {
+  opacity: 1;
+}
+
+/* 드래그 & 클릭은 컨테이너가 담당 */
+#container {
+  cursor: grab;
+}
+#container:active {
   cursor: grabbing;
 }
 
 @keyframes breathe {
-  0%,100% { transform: translateX(var(--tx,0px)) scale(1); }
-  50%      { transform: translateX(var(--tx,0px)) scale(1.04); }
+  0%,100% { transform: translate(-50%, -50%) translateX(var(--tx,0px)) scale(1); }
+  50%      { transform: translate(-50%, -50%) translateX(var(--tx,0px)) scale(1.04); }
 }
 
 @keyframes jump {
-  0%   { transform: translateX(var(--tx,0px)) translateY(0px) scale(1); }
-  40%  { transform: translateX(var(--tx,0px)) translateY(-5px) scale(1.02); }
-  100% { transform: translateX(var(--tx,0px)) translateY(0px) scale(1); }
+  0%   { transform: translate(-50%, -50%) translateX(var(--tx,0px)) translateY(0px) scale(1); }
+  40%  { transform: translate(-50%, -50%) translateX(var(--tx,0px)) translateY(-5px) scale(1.02); }
+  100% { transform: translate(-50%, -50%) translateX(var(--tx,0px)) translateY(0px) scale(1); }
 }
 
-#seal.breathing {
+.seal-layer.breathing {
   animation: breathe 3s ease-in-out infinite;
 }
 
-#seal.jumping {
+.seal-layer.jumping {
   animation: jump 0.3s ease-out forwards;
 }
